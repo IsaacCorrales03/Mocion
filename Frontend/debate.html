@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moción — Debate</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* ---------- Encabezado común ---------- */
+.debate-head{padding:16px 24px 10px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
+.debate-no{font-family:var(--mono);font-size:11px;color:var(--ink-faint);}
+.topic-row{padding:12px 24px 20px;display:flex;gap:28px;align-items:baseline;flex-wrap:wrap;border-bottom:1px solid var(--line-soft);}
+h1.topic{font-family:var(--serif);font-weight:500;font-size:clamp(22px,2.6vw,30px);line-height:1.15;max-width:640px;flex:1 1 320px;}
+.subline{font-size:13px;color:var(--ink-dim);max-width:320px;line-height:1.5;}
+
+/* ---------- Panel de gestión (estado abierto) ---------- */
+.gestion{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--line-soft);}
+.equipo-col{padding:20px;border-right:1px solid var(--line-soft);}
+.equipo-col:last-child{border-right:none;}
+.equipo-col h3{font-family:var(--serif);font-weight:500;font-size:16px;margin-bottom:4px;}
+.equipo-col .conteo{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-bottom:14px;}
+.persona-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:13px;}
+.buscador{margin-top:16px;position:relative;}
+.buscador input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--line);color:var(--ink);font-family:var(--sans);font-size:13px;padding:8px 2px;outline:none;}
+.buscador input:focus{border-bottom-color:var(--accent);}
+.resultados-busqueda{margin-top:8px;}
+.resultado-usuario{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px;}
+.resultado-usuario button{font-family:var(--mono);font-size:10px;background:none;border:1px solid var(--line);color:var(--ink-dim);padding:4px 8px;cursor:pointer;}
+.resultado-usuario button:hover{border-color:var(--accent);color:var(--accent);}
+.iniciar-bar{padding:20px 24px;border-top:1px solid var(--line-soft);display:flex;justify-content:flex-end;}
+
+/* ---------- Barra de fase (estado transmitiendo) ---------- */
+.fase-bar{padding:14px 24px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+.fase-nombre{font-family:var(--serif);font-style:italic;font-size:16px;}
+.fase-cuenta{font-family:var(--mono);font-size:20px;color:var(--accent);}
+.turno-aviso{font-family:var(--mono);font-size:11.5px;color:var(--ink-dim);}
+.turno-aviso b{color:var(--accent);}
+
+.stage{display:grid;grid-template-columns:1fr 340px;border-bottom:1px solid var(--line-soft);}
+.videocol{border-right:1px solid var(--line-soft);}
+.video{aspect-ratio:16/9;background:linear-gradient(150deg,#1b1916 0%,#100f0d 60%);margin:16px 24px;border:1px solid var(--line);position:relative;overflow:hidden;display:flex;align-items:flex-end;}
+.video video{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;background:#000;}
+.video-caption{position:relative;width:100%;padding:16px 20px;background:linear-gradient(0deg, rgba(0,0,0,.55), transparent);display:flex;justify-content:space-between;align-items:flex-end;z-index:2;}
+.speaker-tag{font-family:var(--mono);font-size:11px;color:var(--ink-dim);}
+.timecode{font-family:var(--mono);font-size:11px;color:var(--ink-faint);}
+.actions{display:flex;gap:10px;padding:0 24px 22px;flex-wrap:wrap;}
+.chatcol{display:flex;flex-direction:column;}
+.chat-head{padding:16px 20px 10px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:baseline;}
+.chat-head .t{font-family:var(--serif);font-style:italic;font-size:15px;}
+.chat-list{flex:1;overflow-y:auto;padding:8px 20px;max-height:420px;min-height:260px;}
+.msg{padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:13px;line-height:1.45;}
+.msg .who{font-size:11.5px;color:var(--ink-dim);margin-right:6px;}
+.msg .t{font-family:var(--mono);font-size:10px;color:var(--ink-faint);float:right;}
+.msg-in{animation:slidein .35s ease-out;}
+@keyframes slidein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.chat-foot{border-top:1px solid var(--line-soft);padding:12px 20px;display:flex;gap:10px;}
+.chat-foot input{flex:1;background:transparent;border:none;border-bottom:1px solid var(--line);color:var(--ink);font-family:var(--sans);font-size:13px;padding:6px 2px;outline:none;}
+.chat-foot input:focus{border-bottom-color:var(--accent);}
+.chat-foot button{background:none;border:none;color:var(--accent);font-family:var(--mono);font-size:11px;letter-spacing:.4px;cursor:pointer;}
+
+/* ---------- Votación ---------- */
+.votacion{padding:20px 24px;border-top:1px solid var(--line-soft);}
+.votacion h3{font-family:var(--serif);font-weight:500;font-size:16px;margin-bottom:12px;}
+.votacion .barras{display:flex;gap:16px;margin-top:14px;}
+.barra{flex:1;}
+.barra .etiqueta{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-bottom:6px;display:flex;justify-content:space-between;}
+.barra .fondo{height:6px;background:var(--line-soft);position:relative;}
+.barra .relleno{position:absolute;left:0;top:0;height:100%;background:var(--accent);}
+
+/* ---------- Jurado: puntuación ---------- */
+.jurylist{padding:20px 24px;border-top:1px solid var(--line-soft);}
+.jurylist h3{font-family:var(--serif);font-weight:500;font-size:17px;margin-bottom:12px;}
+.puntuar-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:13px;gap:12px;}
+.puntuar-row select{background:transparent;border:1px solid var(--line);color:var(--ink);font-family:var(--mono);font-size:12px;padding:4px 6px;}
+
+/* ---------- Resultado final ---------- */
+.resultado{padding:40px 24px;text-align:center;}
+.resultado .ganador{font-family:var(--serif);font-size:34px;font-weight:600;margin-bottom:6px;}
+.resultado .ganador .a{color:var(--accent);}
+.resultado .marcador{display:flex;justify-content:center;gap:60px;margin-top:28px;}
+.resultado .equipo-marcador .num{font-family:var(--serif);font-size:42px;font-weight:500;}
+.resultado .equipo-marcador .lbl{font-family:var(--mono);font-size:11px;color:var(--ink-faint);margin-top:4px;}
+
+@media (max-width:860px){
+  .gestion{grid-template-columns:1fr;}
+  .equipo-col{border-right:none;border-bottom:1px solid var(--line-soft);}
+  .stage{grid-template-columns:1fr;}
+  .videocol{border-right:none;border-bottom:1px solid var(--line-soft);}
+  .resultado .marcador{gap:30px;}
+}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="brand"><b>M</b>oción</div>
+  <div class="navlinks"><a href="index.html">En directo</a></div>
+  <div class="navmeta" id="navSesion"><span id="clock">--:--:--</span></div>
+</div>
+
+<div id="cargando" class="wrap" style="padding-top:28px;font-family:var(--mono);font-size:12px;color:var(--ink-faint);">Cargando debate…</div>
+
+<div id="contenido" style="display:none;">
+
+  <div class="debate-head">
+    <div class="debate-no">DEBATE Nº <span id="debateId"></span></div>
+    <div id="estadoMark" class="live-mark"></div>
+  </div>
+  <div class="topic-row">
+    <div>
+      <div class="eyebrow">MOCIÓN EN DEBATE</div>
+      <h1 class="topic" id="titulo"></h1>
+    </div>
+    <div class="subline" id="descripcion"></div>
+  </div>
+
+  <!-- ===================== ESTADO: ABIERTO — gestión de equipos y jurado ===================== -->
+  <div id="panelGestion" style="display:none;">
+    <div class="gestion">
+      <div class="equipo-col">
+        <h3>Equipo A</h3>
+        <div class="conteo" id="conteoA">0 / 0</div>
+        <div id="listaEquipoA"></div>
+        <div class="buscador">
+          <input type="text" placeholder="Buscar por nombre o correo…" data-destino="a">
+          <div class="resultados-busqueda"></div>
+        </div>
+      </div>
+      <div class="equipo-col">
+        <h3>Equipo B</h3>
+        <div class="conteo" id="conteoB">0 / 0</div>
+        <div id="listaEquipoB"></div>
+        <div class="buscador">
+          <input type="text" placeholder="Buscar por nombre o correo…" data-destino="b">
+          <div class="resultados-busqueda"></div>
+        </div>
+      </div>
+      <div class="equipo-col">
+        <h3>Jurado</h3>
+        <div class="conteo" id="conteoJurado">0 asignados</div>
+        <div id="listaJuradoGestion"></div>
+        <div class="buscador">
+          <input type="text" placeholder="Buscar por nombre o correo…" data-destino="jurado">
+          <div class="resultados-busqueda"></div>
+        </div>
+      </div>
+    </div>
+    <div class="iniciar-bar">
+      <button class="btn solid" id="btnIniciar">INICIAR DEBATE</button>
+    </div>
+  </div>
+
+  <!-- ===================== ESTADO: TRANSMITIENDO — vista en vivo por fases ===================== -->
+  <div id="panelVivo" style="display:none;">
+    <div class="fase-bar">
+      <div><span class="eyebrow" id="faseRonda"></span> <span class="fase-nombre" id="faseNombre">—</span></div>
+      <div class="fase-cuenta" id="faseCuenta">--:--</div>
+      <div class="turno-aviso" id="turnoAviso"></div>
+    </div>
+
+    <div class="stage">
+      <div class="videocol">
+        <div class="video">
+          <video id="videoRemoto" autoplay playsinline></video>
+          <div class="video-caption">
+            <div class="speaker-tag" id="speakerTag">Esperando…</div>
+            <div class="timecode" id="clockDebate">--:--:--</div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn accent" id="btnTomarPalabra" style="display:none;">TOMAR LA PALABRA Y TRANSMITIR</button>
+          <button class="btn" id="btnFinalizar" style="display:none;">FINALIZAR DEBATE</button>
+        </div>
+
+        <div class="votacion" id="votacionPanel" style="display:none;">
+          <h3 id="votacionTitulo">Votación del público</h3>
+          <div class="actions" style="padding:0;">
+            <button class="btn accent" id="btnVotarA">VOTAR EQUIPO A</button>
+            <button class="btn" id="btnVotarB">VOTAR EQUIPO B</button>
+          </div>
+          <div class="barras">
+            <div class="barra">
+              <div class="etiqueta"><span>EQUIPO A</span><span id="pctA">0%</span></div>
+              <div class="fondo"><div class="relleno" id="barraA" style="width:0%;"></div></div>
+            </div>
+            <div class="barra">
+              <div class="etiqueta"><span>EQUIPO B</span><span id="pctB">0%</span></div>
+              <div class="fondo"><div class="relleno" id="barraB" style="width:0%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="jurylist" id="puntuacionPanel" style="display:none;">
+          <h3>Calificá a cada participante (1-10)</h3>
+          <div id="listaPuntuar"></div>
+        </div>
+      </div>
+
+      <div class="chatcol">
+        <div class="chat-head"><div class="t">Sala de conversación</div><div class="n" id="chatEstado" style="font-family:var(--mono);font-size:11px;color:var(--ink-faint);">conectando…</div></div>
+        <div class="chat-list" id="chatList"></div>
+        <div class="chat-foot">
+          <input type="text" placeholder="Escribe un comentario" id="chatInput">
+          <button id="chatSend">ENVIAR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ESTADO: FINALIZADO — resultado ===================== -->
+  <div id="panelFinal" style="display:none;">
+    <div class="resultado">
+      <div class="eyebrow">RESULTADO FINAL</div>
+      <div class="ganador" id="ganadorTexto">—</div>
+      <div class="marcador">
+        <div class="equipo-marcador"><div class="num" id="finalA">0</div><div class="lbl">EQUIPO A</div></div>
+        <div class="equipo-marcador"><div class="num" id="finalB">0</div><div class="lbl">EQUIPO B</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/pages/debate.js"></script>
+</body>
+</html>

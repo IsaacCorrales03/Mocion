@@ -1,0 +1,135 @@
+[26-09-2026 11:14:58] [INFO] Iniciando servidor
+[26-09-2026 11:14:59] [INFO] Conectando con la DB
+[26-09-2026 11:14:59] [INFO] Conectado a la DB
+[26-09-2026 11:14:59] [INFO] Tabla usuarios lista
+[26-09-2026 11:14:59] [INFO] Tabla debates lista
+[26-09-2026 11:14:59] [INFO] Tabla votos lista
+[26-09-2026 11:14:59] [INFO] Tabla jurado lista
+[26-09-2026 11:14:59] [INFO] Servidor iniciado en http://localhost:8080
+[26-09-2026 11:20:27] [INFO] Iniciando servidor
+[26-09-2026 11:20:27] [INFO] Conectando con la DB
+[26-09-2026 11:20:27] [INFO] Conectado a la DB
+[26-09-2026 11:20:27] [INFO] Tabla usuarios lista
+[26-09-2026 11:20:27] [INFO] Tabla debates lista
+[26-09-2026 11:20:27] [INFO] Tabla votos lista
+[26-09-2026 11:20:27] [INFO] Tabla jurado lista
+[26-09-2026 11:20:27] [INFO] Servidor iniciado en http://localhost:8080
+[26-09-2026 11:31:55] [INFO] Iniciando servidor
+[26-09-2026 11:31:55] [INFO] Conectando con la DB
+[26-09-2026 11:31:55] [INFO] Conectado a la DB
+[26-09-2026 11:31:55] [INFO] Tabla usuarios lista
+[26-09-2026 11:31:55] [INFO] Tabla debates lista
+[26-09-2026 11:31:55] [INFO] Tabla votos lista
+[26-09-2026 11:31:55] [INFO] Tabla jurado lista
+[26-09-2026 11:31:55] [INFO] Servidor iniciado en http://localhost:8080
+[26-09-2026 11:32:31] [ERROR] Error al obtener el usuario por email: pq: column "nombre" does not exist at position 2:13 (42703)
+[26-09-2026 11:35:53] [INFO] Iniciando servidor
+[26-09-2026 11:35:53] [INFO] Conectando con la DB
+[26-09-2026 11:35:53] [INFO] Conectado a la DB
+[26-09-2026 11:35:53] [INFO] Tabla usuarios lista
+[26-09-2026 11:35:53] [INFO] Tabla debates lista
+[26-09-2026 11:35:53] [INFO] Tabla votos lista
+[26-09-2026 11:35:53] [INFO] Tabla jurado lista
+[26-09-2026 11:35:53] [INFO] Servidor iniciado en http://localhost:8080
+[26-09-2026 11:35:57] [INFO] Usuario creado: naturalcherry@gmail.com
+[26-09-2026 11:36:03] [INFO] Inicio de sesión exitoso: naturalcherry@gmail.com
+[26-09-2026 11:36:48] [INFO] Debate creado: Debate Economía actual
+[26-09-2026 11:59:18] [INFO] Iniciando servidor
+[26-09-2026 11:59:18] [INFO] Conectando con la DB
+[26-09-2026 11:59:18] [INFO] Conectado a la DB
+[26-09-2026 11:59:18] [INFO] Tabla usuarios lista
+[26-09-2026 11:59:18] [INFO] Tabla debates lista
+[26-09-2026 11:59:18] [INFO] Tabla votos lista
+[26-09-2026 11:59:18] [INFO] Tabla jurado lista
+[26-09-2026 11:59:18] [INFO] Servidor iniciado en http://localhost:8080
+[26-09-2026 12:06:47] [INFO] Iniciando servidor
+[26-09-2026 12:06:47] [INFO] Conectando con la DB
+[26-09-2026 12:06:47] [INFO] Conectado a la DB
+[26-09-2026 12:06:47] [INFO] Tabla usuarios lista
+[26-09-2026 12:06:47] [INFO] Tabla debates lista
+[26-09-2026 12:06:47] [INFO] Tabla votos lista
+[26-09-2026 12:06:47] [INFO] Tabla jurado lista
+[26-09-2026 12:06:47] [INFO] Servidor iniciado en http://localhost:8080
+[26-09-2026 12:07:28] [INFO] Iniciando servidor
+[26-09-2026 12:07:28] [INFO] Conectando con la DB
+[26-09-2026 12:07:28] [INFO] Conectado a la DB
+[26-09-2026 12:07:28] [INFO] Tabla usuarios lista
+[26-09-2026 12:07:28] [INFO] Tabla debates lista
+[26-09-2026 12:07:28] [INFO] Tabla votos lista
+[26-09-2026 12:07:28] [INFO] Tabla jurado lista
+[26-09-2026 12:07:28] [INFO] Servidor iniciado en http://localhost:8080
+[26-09-2026 12:49:04] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 12:49:04] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 12:49:04] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 12:49:04] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 12:49:10] [INFO] Inicio de sesión exitoso: naturalcherry@gmail.com
+[26-09-2026 12:49:12] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 12:49:12] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 12:49:18] [INFO] Debate iniciado, ID: 1
+[26-09-2026 12:57:29] [INFO] Voto registrado para el debate 1
+[26-09-2026 12:57:31] [INFO] Jurado asignado al debate 1
+[26-09-2026 12:57:34] [INFO] Veredicto emitido para el debate 1
+[26-09-2026 13:17:42] [INFO] Iniciando servidor
+[26-09-2026 13:17:42] [INFO] Conectando con la DB
+[26-09-2026 13:17:42] [INFO] Conectado a la DB
+[26-09-2026 13:17:42] [INFO] Tabla usuarios lista
+[26-09-2026 13:17:42] [INFO] Tabla debates lista
+[26-09-2026 13:17:42] [INFO] Tabla votos lista
+[26-09-2026 13:17:42] [INFO] Tabla jurado lista
+[26-09-2026 13:17:42] [INFO] Servidor iniciado en http://localhost:8080
+[26-09-2026 13:17:42] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 13:20:46] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 13:20:46] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 13:20:46] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 13:20:46] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 13:22:15] [INFO] Iniciando servidor
+[26-09-2026 13:22:15] [INFO] Conectando con la DB
+[26-09-2026 13:22:15] [INFO] Conectado a la DB
+[26-09-2026 13:22:15] [INFO] Tabla usuarios lista
+[26-09-2026 13:22:15] [INFO] Tabla debates lista
+[26-09-2026 13:22:15] [INFO] Tabla votos lista
+[26-09-2026 13:22:15] [INFO] Tabla jurado lista
+[26-09-2026 13:22:15] [INFO] Servidor iniciado en http://localhost:8080
+[26-09-2026 13:22:16] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 13:23:09] [INFO] Iniciando servidor
+[26-09-2026 13:23:09] [INFO] Conectando con la DB
+[26-09-2026 13:23:09] [INFO] Conectado a la DB
+[26-09-2026 13:23:09] [INFO] Tabla usuarios lista
+[26-09-2026 13:23:09] [INFO] Tabla debates lista
+[26-09-2026 13:23:09] [INFO] Tabla votos lista
+[26-09-2026 13:23:09] [INFO] Tabla jurado lista
+[26-09-2026 13:23:09] [INFO] Servidor iniciado en http://localhost:8080
+[26-09-2026 13:23:09] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 13:23:23] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 13:23:23] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 13:23:23] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 13:23:23] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 13:23:30] [INFO] Inicio de sesión exitoso: naturalcherry@gmail.com
+[26-09-2026 13:23:34] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 13:23:34] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 13:23:42] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 13:24:02] [INFO] Usuario creado: aguerodeivid@gmail.com
+[26-09-2026 13:24:07] [INFO] Inicio de sesión exitoso: aguerodeivid@gmail.com
+[26-09-2026 13:24:09] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 13:24:09] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 13:24:52] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 13:24:52] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 16:41:44] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 16:44:05] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 16:44:12] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 16:51:59] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 16:51:59] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 16:52:22] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 16:52:22] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 16:52:22] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 16:52:22] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 16:52:26] [INFO] Inicio de sesión exitoso: aguerodeivid@gmail.com
+[26-09-2026 16:52:28] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 16:52:28] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 17:05:45] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 17:05:45] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 17:05:45] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 17:05:45] [INFO] Nueva conexión en la sala del debate 1
+[26-09-2026 17:07:33] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 17:37:15] [INFO] Conexión cerrada en la sala del debate 1
+[26-09-2026 17:37:15] [INFO] Conexión cerrada en la sala del debate 1

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moción — En directo</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="nav">
+  <div class="brand"><b>M</b>oción</div>
+  <div class="navlinks">
+    <a class="on" href="index.html">En directo</a>
+    <a href="index.html#programados">Programados</a>
+    <a href="crear.html">Nuevo debate</a>
+  </div>
+  <div class="navmeta" id="navSesion" style="display:flex;gap:12px;align-items:center;">
+    <span id="clock">--:--:--</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="section-head" style="margin-top:28px;">
+    <h2>Debates en directo</h2>
+    <span id="countVivo">—</span>
+  </div>
+  <div class="grid3" id="listaVivo"></div>
+
+  <div class="section-head" id="programados">
+    <h2>Próximos en cartelera</h2>
+    <span id="countProg">—</span>
+  </div>
+  <div class="grid3" id="listaProg"></div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/pages/index.js"></script>
+</body>
+</html>

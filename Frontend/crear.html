@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moción — Nuevo debate</title>
+<link rel="stylesheet" href="css/style.css">
+<style>.auth-wrap{max-width:480px;margin:64px auto 0;padding:0 24px;}</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="brand"><b>M</b>oción</div>
+  <div class="navlinks"><a href="index.html">En directo</a></div>
+  <div class="navmeta" id="navSesion"><span id="clock">--:--:--</span></div>
+</div>
+
+<div class="auth-wrap">
+  <span class="eyebrow">MOCIÓN A DEBATE</span>
+  <h1 style="font-family:var(--serif);font-weight:500;font-size:26px;margin:8px 0 24px;">Programar un nuevo debate</h1>
+
+  <form id="formCrear">
+    <div class="field"><label>TÍTULO / MOCIÓN</label><input type="text" id="titulo" required></div>
+    <div class="field"><label>DESCRIPCIÓN</label><textarea id="descripcion" rows="4"></textarea></div>
+    <div class="field">
+      <label>RONDAS DE DEBATE (1 A 5)</label>
+      <select id="rondas" style="background:transparent;border:none;border-bottom:1px solid var(--line);color:var(--ink);font-family:var(--sans);font-size:14px;padding:8px 2px;">
+        <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option>
+        <option value="4">4</option><option value="5">5</option>
+      </select>
+    </div>
+    <div class="field"><label>PARTICIPANTES POR EQUIPO</label><input type="number" id="participantesXEquipo" min="1" max="6" value="2" required></div>
+    <button class="btn solid" type="submit">CREAR DEBATE</button>
+    <div class="msg-error" id="crearError"></div>
+    <div class="msg-ok" id="crearOk"></div>
+  </form>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/pages/crear.js"></script>
+</body>
+</html>

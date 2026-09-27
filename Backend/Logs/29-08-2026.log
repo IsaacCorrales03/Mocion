@@ -1,0 +1,7 @@
+[29-08-2026 08:57:09] [INFO] Iniciando servidor
+[29-08-2026 08:57:09] [INFO] Conectando con la DB
+[29-08-2026 08:57:09] [ERROR] Error al conectar con la DB: pq: SSL is not enabled on the server
+[29-08-2026 08:58:03] [INFO] Iniciando servidor
+[29-08-2026 08:58:03] [INFO] Conectando con la DB
+[29-08-2026 08:58:03] [INFO] Conectado a la DB
+[29-08-2026 08:58:03] [INFO] Servidor iniciado en http://localhost:8080

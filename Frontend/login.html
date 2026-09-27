@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moción — Ingresar</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.auth-wrap{max-width:380px;margin:64px auto 0;padding:0 24px;}
+.auth-head{margin-bottom:28px;}
+.auth-head .eyebrow{margin-bottom:8px;display:block;}
+.auth-head h1{font-family:var(--serif);font-weight:500;font-size:26px;}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--line-soft);margin-bottom:26px;}
+.tabs button{
+  flex:1;background:none;border:none;color:var(--ink-faint);font-family:var(--mono);font-size:11.5px;
+  padding:10px 0;cursor:pointer;border-bottom:1px solid transparent;letter-spacing:.4px;
+}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="brand"><b>M</b>oción</div>
+  <div class="navmeta"><span id="clock">--:--:--</span></div>
+</div>
+
+<div class="auth-wrap">
+  <div class="auth-head">
+    <span class="eyebrow">ACCESO A LA PLATAFORMA</span>
+    <h1 id="titulo">Ingresar</h1>
+  </div>
+
+  <div class="tabs">
+    <button class="on" id="tabLogin">INICIAR SESIÓN</button>
+    <button id="tabRegistro">CREAR CUENTA</button>
+  </div>
+
+  <form id="formLogin">
+    <div class="field"><label>CORREO</label><input type="email" id="loginEmail" required></div>
+    <div class="field"><label>CONTRASEÑA</label><input type="password" id="loginPassword" required></div>
+    <button class="btn solid" type="submit" style="width:100%;">ENTRAR</button>
+    <div class="msg-error" id="loginError"></div>
+  </form>
+
+  <form id="formRegistro" style="display:none;">
+    <div class="field"><label>NOMBRE</label><input type="text" id="regNombre" required></div>
+    <div class="field"><label>CORREO</label><input type="email" id="regEmail" required></div>
+    <div class="field"><label>CONTRASEÑA</label><input type="password" id="regPassword" minlength="8" required></div>
+    <button class="btn solid" type="submit" style="width:100%;">CREAR CUENTA</button>
+    <div class="msg-error" id="regError"></div>
+    <div class="msg-ok" id="regOk"></div>
+  </form>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/pages/login.js"></script>
+</body>
+</html>
