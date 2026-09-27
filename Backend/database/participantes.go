@@ -5,6 +5,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/IsaacCorrales03/Mocion/backend/internal/logs"
@@ -63,16 +64,21 @@ func AsignarParticipante(db *sql.DB, debateID int64, usuarioID int64, equipo str
 
 	consulta := `
 	INSERT INTO participantes (debate_id, usuario_id, equipo, orden)
-	VALUES ($1, $2, $3, (SELECT COUNT(*) FROM participantes WHERE debate_id = $1 AND equipo = $3))
+	VALUES ($1, $2, $3, (SELECT COUNT(*) FROM participantes WHERE debate_id = $1 AND equipo = $4))
 	RETURNING id, creado_en, orden;`
 
 	participante := &Participante{DebateID: debateID, UsuarioID: usuarioID, Equipo: equipo}
 
-	err := db.QueryRow(consulta, debateID, usuarioID, equipo).Scan(&participante.ID, &participante.CreadoEn, &participante.Orden)
+	err := db.QueryRow(consulta, debateID, usuarioID, equipo, equipo).Scan(&participante.ID, &participante.CreadoEn, &participante.Orden)
 
 	if err != nil {
+
+		if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "unique constraint") {
+			return nil, ErrYaEsParticipante
+		}
+
 		logs.Error("Error al asignar el participante: " + err.Error())
-		return nil, ErrYaEsParticipante
+		return nil, err
 	}
 
 	logs.Info("Participante asignado al debate " + itoa(debateID))

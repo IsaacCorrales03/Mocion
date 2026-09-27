@@ -45,6 +45,8 @@ async function cargarDebate() {
   document.getElementById("titulo").textContent = debateActual.titulo;
   document.getElementById("descripcion").textContent = debateActual.descripcion || "Sin descripción adicional.";
 
+  conectarPresencia();
+
   try {
     participantesCache = await API.listarParticipantes(debateId);
     juradoCache = await API.obtenerJurado(debateId);
@@ -67,6 +69,13 @@ function marcarEstado(texto) {
       : `<span style="color:var(--ink-faint)">${texto}</span>`;
 }
 
+/* ---------- Presencia: marca que esta pestaña está mirando el debate ---------- */
+let presenciaWs;
+function conectarPresencia() {
+  presenciaWs = API.presenciaSocket(debateId, sesion.id);
+  presenciaWs.onclose = () => setTimeout(conectarPresencia, 2000);
+}
+
 /* =====================================================================
    Panel 1 — ABIERTO: armar equipos y jurado antes de arrancar
    ===================================================================== */
@@ -75,6 +84,14 @@ function mostrarPanelGestion() {
   document.getElementById("panelGestion").style.display = "";
   pintarListasGestion();
   conectarBuscadores();
+  actualizarConectados();
+  setInterval(actualizarConectados, 4000);
+}
+
+let conectadosCache = [];
+async function actualizarConectados() {
+  try { conectadosCache = await API.conectados(debateId); } catch { return; }
+  pintarListasGestion();
 }
 
 function pintarListasGestion() {
@@ -95,9 +112,10 @@ function pintarPersonas(contenedorId, lista) {
   const cont = document.getElementById(contenedorId);
   cont.innerHTML = lista.length ? "" : '<div style="font-family:var(--mono);font-size:11px;color:var(--ink-faint);">Nadie asignado todavía.</div>';
   lista.forEach(p => {
+    const conectado = conectadosCache.includes(p.usuario_id);
     const row = document.createElement("div");
     row.className = "persona-row";
-    row.innerHTML = `<span>${p.nombre}</span>`;
+    row.innerHTML = `<span>${p.nombre}</span><span style="font-family:var(--mono);font-size:10px;color:${conectado ? "var(--accent)" : "var(--ink-faint)"};">${conectado ? "● CONECTADO" : "○ SIN CONECTAR"}</span>`;
     cont.appendChild(row);
   });
 }
@@ -146,13 +164,9 @@ document.getElementById("btnIniciar").addEventListener("click", async () => {
     await API.iniciarDebate(debateId, false);
     location.reload();
   } catch (e) {
-    if (e.message.includes("no están todos")) {
-      if (confirm("No están todos los miembros todavía, ¿seguro que querés iniciarlo?")) {
-        try { await API.iniciarDebate(debateId, true); location.reload(); }
-        catch (e2) { alert(e2.message); }
-      }
-    } else {
-      alert(e.message);
+    if (confirm(`${e.message}. ¿Querés iniciarlo igual?`)) {
+      try { await API.iniciarDebate(debateId, true); location.reload(); }
+      catch (e2) { alert(e2.message); }
     }
   }
 });
@@ -209,7 +223,10 @@ function aplicarFase(d) {
     ? `${equipoLbl} — ${tipoLbl}`
     : "Transmisión no iniciada";
 
-  document.getElementById("btnTomarPalabra").style.display = miTurno && !esEmisor ? "" : "none";
+  document.getElementById("btnTomarPalabra").style.display = "none"; // ya no se pulsa a mano
+  if (miTurno && !esEmisor) {
+    empezarATransmitir(); // el turno llegó: pedir cámara/mic de una vez
+  }
 
   const enVotacion = fase === "votacion_1" || fase === "votacion_2";
   document.getElementById("votacionPanel").style.display = enVotacion ? "" : "none";
@@ -313,79 +330,134 @@ function enviarMensaje() {
 
 /* =====================================================================
    Streaming (WebRTC) + avisos de fase — comparten el mismo socket
+
+   IMPORTANTE: antes había una sola RTCPeerConnection ("pc") en el emisor.
+   Eso solo alcanza para UN espectador: si dos pantallas están mirando,
+   ambas contestan la misma oferta, y la segunda "respuesta" que llega
+   pisa/rompe la conexión de la primera — por eso solo una pantalla (o
+   ninguna) recibía el video real y el emisor solo veía su propia cámara
+   en su propia pantalla. La solución es que el emisor mantenga UNA
+   RTCPeerConnection por cada espectador conectado, y que los mensajes
+   de señalización se etiqueten con "de"/"para" (usuario_id) para que
+   cada uno sepa a cuál conexión pertenecen.
    ===================================================================== */
 let streamWs;
-let pc;
 let esEmisor = false;
+let miStreamLocal = null;
+
+const conexionesComoEmisor = new Map(); // usuario_id del espectador -> RTCPeerConnection
+let pcComoEspectador = null;
+let emisorActualId = null; // usuario_id de quien está transmitiendo ahora
 
 function conectarStream() {
   streamWs = API.streamSocket(debateId);
+
+  streamWs.onopen = () => {
+    // Si al conectarme ya hay alguien transmitiendo, pido que me incluya
+    if (debateActual.turno_usuario_id && !esEmisor) pedirTransmision();
+  };
+
   streamWs.onmessage = async (ev) => {
     const data = JSON.parse(ev.data);
 
     if (data.tipo === "fase") {
       // El servidor difunde el avance del motor de fases por este mismo socket
+      const cambioDeTurno = debateActual.turno_usuario_id !== data.turno_usuario_id;
       debateActual = { ...debateActual, ...data };
-      if (!esEmisor) resetearVideo();
+
+      if (cambioDeTurno) {
+        if (esEmisor && data.turno_usuario_id !== sesion.id) dejarDeTransmitir();
+        if (!esEmisor) {
+          resetearVideo();
+          if (data.turno_usuario_id) pedirTransmision();
+        }
+      }
       aplicarFase(debateActual);
       return;
     }
 
-    if (data.tipo === "oferta" && !esEmisor) {
-      pc = nuevaConexion();
-      await pc.setRemoteDescription(data.sdp);
-      const respuesta = await pc.createAnswer();
-      await pc.setLocalDescription(respuesta);
-      streamWs.send(JSON.stringify({ tipo: "respuesta", sdp: respuesta }));
+    // A partir de acá, todo mensaje trae "de" (quién lo envía).
+    // Si trae "para" y no es para mí, lo ignoro: viaja por el mismo socket
+    // compartido por todos los que miran el debate.
+    if (data.para && data.para !== sesion.id) return;
 
-    } else if (data.tipo === "respuesta" && esEmisor && pc) {
-      await pc.setRemoteDescription(data.sdp);
+    if (data.tipo === "aviso-transmitiendo" && !esEmisor) {
+      pedirTransmision(); // por si mi "solicitud" salió antes de que el otro estuviera listo
 
-    } else if (data.tipo === "candidato" && pc) {
-      try { await pc.addIceCandidate(data.candidato); } catch { /* candidato tardío, se ignora */ }
+    } else if (data.tipo === "solicitud" && esEmisor) {
+      await atenderEspectador(data.de);
+
+    } else if (data.tipo === "oferta" && !esEmisor) {
+      emisorActualId = data.de;
+      pcComoEspectador = nuevaConexion(data.de);
+      await pcComoEspectador.setRemoteDescription(data.sdp);
+      const respuesta = await pcComoEspectador.createAnswer();
+      await pcComoEspectador.setLocalDescription(respuesta);
+      enviarSenal({ tipo: "respuesta", sdp: respuesta, para: data.de });
+
+    } else if (data.tipo === "respuesta" && esEmisor) {
+      const conexion = conexionesComoEmisor.get(data.de);
+      if (conexion) await conexion.setRemoteDescription(data.sdp);
+
+    } else if (data.tipo === "candidato") {
+      const conexion = esEmisor ? conexionesComoEmisor.get(data.de) : pcComoEspectador;
+      if (conexion) {
+        try { await conexion.addIceCandidate(data.candidato); } catch { /* candidato tardío, se ignora */ }
+      }
     }
   };
 }
 
-function resetearVideo() {
-  const video = document.getElementById("videoRemoto");
-  if (!esEmisor) video.srcObject = null;
+function enviarSenal(msg) {
+  streamWs.send(JSON.stringify({ ...msg, de: sesion.id }));
 }
 
-function nuevaConexion() {
-  const conexion = new RTCPeerConnection();
+function resetearVideo() {
+  if (pcComoEspectador) { pcComoEspectador.close(); pcComoEspectador = null; }
+  document.getElementById("videoRemoto").srcObject = null;
+  emisorActualId = null;
+}
+
+function nuevaConexion(idRemoto) {
+  // STUN público: sin esto, RTCPeerConnection solo genera candidatos "locales"
+  // (misma red/subred) y la conexión nunca cierra si emisor y espectador
+  // están en redes distintas (wifi vs datos móviles, redes separadas, etc.)
+  const conexion = new RTCPeerConnection({
+    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+  });
   conexion.onicecandidate = (e) => {
-    if (e.candidate) streamWs.send(JSON.stringify({ tipo: "candidato", candidato: e.candidate }));
+    if (e.candidate) enviarSenal({ tipo: "candidato", candidato: e.candidate, para: idRemoto });
   };
   conexion.ontrack = (e) => {
     if (!esEmisor) document.getElementById("videoRemoto").srcObject = e.streams[0];
   };
+  conexion.oniceconnectionstatechange = () => {
+    console.log(`[stream] ICE con ${idRemoto}:`, conexion.iceConnectionState);
+  };
   return conexion;
 }
 
-async function iniciarOferta() {
-  pc = nuevaConexion();
-
-  let local;
-  try {
-    local = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  } catch (e) {
-    console.warn("No se pudo obtener video+audio, se intenta solo video:", e.message);
-    local = await navigator.mediaDevices.getUserMedia({ video: true });
-  }
-
-  local.getTracks().forEach(t => pc.addTrack(t, local));
-  const video = document.getElementById("videoRemoto");
-  video.srcObject = local;
-  video.muted = true; // evita el eco de tu propia voz en tu vista previa
-
-  const oferta = await pc.createOffer();
-  await pc.setLocalDescription(oferta);
-  streamWs.send(JSON.stringify({ tipo: "oferta", sdp: oferta }));
+// Espectador: "toco el timbre" para que quien transmite arme una conexión conmigo
+function pedirTransmision() {
+  enviarSenal({ tipo: "solicitud" });
 }
 
-document.getElementById("btnTomarPalabra").addEventListener("click", async () => {
-  const btn = document.getElementById("btnTomarPalabra");
+// Emisor: crea UNA conexión propia para este espectador y le manda una oferta
+async function atenderEspectador(idEspectador) {
+  if (conexionesComoEmisor.has(idEspectador)) return; // ya tiene una conexión activa
+
+  const conexion = nuevaConexion(idEspectador);
+  conexionesComoEmisor.set(idEspectador, conexion);
+
+  miStreamLocal.getTracks().forEach(t => conexion.addTrack(t, miStreamLocal));
+
+  const oferta = await conexion.createOffer();
+  await conexion.setLocalDescription(oferta);
+  enviarSenal({ tipo: "oferta", sdp: oferta, para: idEspectador });
+}
+
+async function empezarATransmitir() {
+  if (esEmisor) return; // ya estoy transmitiendo, no repetir
 
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     alert(
@@ -398,17 +470,33 @@ document.getElementById("btnTomarPalabra").addEventListener("click", async () =>
   }
 
   try {
-    esEmisor = true;
-    btn.disabled = true;
-    btn.textContent = "TRANSMITIENDO…";
-    await iniciarOferta();
+    miStreamLocal = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
   } catch (e) {
-    esEmisor = false;
-    btn.disabled = false;
-    btn.textContent = "TOMAR LA PALABRA Y TRANSMITIR";
-    alert("No se pudo acceder a la cámara/micrófono: " + e.message);
+    try {
+      console.warn("No se pudo obtener video+audio, se intenta solo video:", e.message);
+      miStreamLocal = await navigator.mediaDevices.getUserMedia({ video: true });
+    } catch (e2) {
+      alert("No se pudo acceder a la cámara/micrófono: " + e2.message);
+      return;
+    }
   }
-});
+
+  esEmisor = true;
+  const video = document.getElementById("videoRemoto");
+  video.srcObject = miStreamLocal;
+  video.muted = true; // evita el eco de tu propia voz en tu vista previa
+
+  // Cualquiera que ya estuviera mirando pide su propia conexión al abrirse mi cámara
+  enviarSenal({ tipo: "aviso-transmitiendo" });
+}
+
+function dejarDeTransmitir() {
+  esEmisor = false;
+  conexionesComoEmisor.forEach(c => c.close());
+  conexionesComoEmisor.clear();
+  if (miStreamLocal) { miStreamLocal.getTracks().forEach(t => t.stop()); miStreamLocal = null; }
+  document.getElementById("videoRemoto").srcObject = null;
+}
 
 /* =====================================================================
    Panel 3 — FINALIZADO: resultado

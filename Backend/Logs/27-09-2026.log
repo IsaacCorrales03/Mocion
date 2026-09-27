@@ -1,0 +1,109 @@
+[27-09-2026 06:06:23] [INFO] Iniciando servidor
+[27-09-2026 06:06:23] [INFO] Conectando con la DB
+[27-09-2026 06:06:23] [INFO] Conectado a la DB
+[27-09-2026 06:06:23] [INFO] Tabla usuarios lista
+[27-09-2026 06:06:23] [INFO] Tabla debates lista
+[27-09-2026 06:06:23] [INFO] Migración de la tabla debates lista
+[27-09-2026 06:06:23] [INFO] Tabla participantes lista
+[27-09-2026 06:06:23] [INFO] Tabla votos lista
+[27-09-2026 06:06:23] [INFO] Migración de la tabla votos lista
+[27-09-2026 06:06:23] [INFO] Tabla jurado lista
+[27-09-2026 06:06:23] [INFO] Tabla puntuaciones_jurado lista
+[27-09-2026 06:06:23] [INFO] Servidor iniciado en http://localhost:8080
+[27-09-2026 06:09:18] [INFO] Debate creado: Capitalismo vs Comunismo
+[27-09-2026 06:09:28] [ERROR] Error al asignar el participante: pq: inconsistent types deduced for parameter $3 at position 3:18 (42P08)
+[27-09-2026 06:09:43] [INFO] Jurado asignado al debate 2
+[27-09-2026 06:09:48] [ERROR] Error al asignar el participante: pq: inconsistent types deduced for parameter $3 at position 3:18 (42P08)
+[27-09-2026 06:09:58] [ERROR] Error al asignar el participante: pq: inconsistent types deduced for parameter $3 at position 3:18 (42P08)
+[27-09-2026 06:10:36] [INFO] Usuario creado: usuario1@gmail.com
+[27-09-2026 06:10:41] [INFO] Inicio de sesión exitoso: usuario1@gmail.com
+[27-09-2026 06:10:53] [ERROR] Error al asignar el participante: pq: inconsistent types deduced for parameter $3 at position 3:18 (42P08)
+[27-09-2026 06:11:02] [ERROR] Error al asignar el participante: pq: inconsistent types deduced for parameter $3 at position 3:18 (42P08)
+[27-09-2026 06:13:49] [INFO] Iniciando servidor
+[27-09-2026 06:13:49] [INFO] Conectando con la DB
+[27-09-2026 06:13:49] [INFO] Conectado a la DB
+[27-09-2026 06:13:49] [INFO] Tabla usuarios lista
+[27-09-2026 06:13:49] [INFO] Tabla debates lista
+[27-09-2026 06:13:49] [INFO] Migración de la tabla debates lista
+[27-09-2026 06:13:49] [INFO] Tabla participantes lista
+[27-09-2026 06:13:49] [INFO] Tabla votos lista
+[27-09-2026 06:13:49] [INFO] Migración de la tabla votos lista
+[27-09-2026 06:13:49] [INFO] Tabla jurado lista
+[27-09-2026 06:13:49] [INFO] Tabla puntuaciones_jurado lista
+[27-09-2026 06:13:49] [INFO] Servidor iniciado en http://localhost:8080
+[27-09-2026 06:14:20] [INFO] Participante asignado al debate 2
+[27-09-2026 06:14:24] [INFO] Participante asignado al debate 2
+[27-09-2026 06:14:34] [INFO] Debate iniciado, ID: 2
+[27-09-2026 06:14:34] [INFO] Nueva conexión en la sala del debate 2
+[27-09-2026 06:14:34] [INFO] Nueva conexión en la sala del debate 2
+[27-09-2026 06:14:54] [INFO] Nueva conexión en la sala del debate 2
+[27-09-2026 06:14:54] [INFO] Nueva conexión en la sala del debate 2
+[27-09-2026 06:16:03] [INFO] Conexión cerrada en la sala del debate 2
+[27-09-2026 06:16:03] [INFO] Conexión cerrada en la sala del debate 2
+[27-09-2026 06:16:03] [INFO] Nueva conexión en la sala del debate 2
+[27-09-2026 06:16:03] [INFO] Nueva conexión en la sala del debate 2
+[27-09-2026 06:21:10] [INFO] Iniciando servidor
+[27-09-2026 06:21:10] [INFO] Conectando con la DB
+[27-09-2026 06:21:10] [INFO] Conectado a la DB
+[27-09-2026 06:21:10] [INFO] Tabla usuarios lista
+[27-09-2026 06:21:10] [INFO] Tabla debates lista
+[27-09-2026 06:21:10] [INFO] Migración de la tabla debates lista
+[27-09-2026 06:21:10] [INFO] Tabla participantes lista
+[27-09-2026 06:21:10] [INFO] Tabla votos lista
+[27-09-2026 06:21:10] [INFO] Migración de la tabla votos lista
+[27-09-2026 06:21:10] [INFO] Tabla jurado lista
+[27-09-2026 06:21:10] [INFO] Tabla puntuaciones_jurado lista
+[27-09-2026 06:21:10] [INFO] Servidor iniciado en http://localhost:8080
+[27-09-2026 06:21:10] [INFO] Nueva conexión en la sala del debate 2
+[27-09-2026 06:21:11] [INFO] Nueva conexión en la sala del debate 2
+[27-09-2026 06:21:36] [INFO] Conexión cerrada en la sala del debate 2
+[27-09-2026 06:21:49] [INFO] Debate finalizado, ID: 2
+[27-09-2026 06:21:49] [INFO] Conexión cerrada en la sala del debate 2
+[27-09-2026 06:22:32] [INFO] Debate creado: Debate de prueba N1
+[27-09-2026 06:22:38] [INFO] Participante asignado al debate 3
+[27-09-2026 06:22:44] [INFO] Participante asignado al debate 3
+[27-09-2026 06:22:49] [INFO] Jurado asignado al debate 3
+[27-09-2026 06:37:03] [INFO] Inicio de sesión exitoso: naturalcherry@gmail.com
+[27-09-2026 06:37:35] [INFO] Debate iniciado, ID: 3
+[27-09-2026 06:37:36] [INFO] Nueva conexión en la sala del debate 3
+[27-09-2026 06:37:36] [INFO] Nueva conexión en la sala del debate 3
+[27-09-2026 06:37:48] [INFO] Nueva conexión en la sala del debate 3
+[27-09-2026 06:37:48] [INFO] Nueva conexión en la sala del debate 3
+[27-09-2026 06:37:55] [INFO] Nueva conexión en la sala del debate 3
+[27-09-2026 06:37:55] [INFO] Nueva conexión en la sala del debate 3
+[27-09-2026 06:42:32] [INFO] Conexión cerrada en la sala del debate 3
+[27-09-2026 06:42:32] [INFO] Conexión cerrada en la sala del debate 3
+[27-09-2026 06:43:53] [INFO] Debate finalizado, ID: 3
+[27-09-2026 06:43:53] [INFO] Conexión cerrada en la sala del debate 3
+[27-09-2026 06:43:53] [INFO] Conexión cerrada en la sala del debate 3
+[27-09-2026 06:43:57] [INFO] Conexión cerrada en la sala del debate 3
+[27-09-2026 06:43:57] [INFO] Conexión cerrada en la sala del debate 3
+[27-09-2026 06:47:03] [INFO] Nueva conexión en la sala del debate 3
+[27-09-2026 07:05:34] [INFO] Conexión cerrada en la sala del debate 3
+[27-09-2026 07:38:22] [INFO] Nueva conexión en la sala del debate 3
+[27-09-2026 07:39:58] [INFO] Iniciando servidor
+[27-09-2026 07:39:58] [INFO] Conectando con la DB
+[27-09-2026 07:39:59] [INFO] Conectado a la DB
+[27-09-2026 07:39:59] [INFO] Tabla usuarios lista
+[27-09-2026 07:39:59] [INFO] Tabla debates lista
+[27-09-2026 07:39:59] [INFO] Migración de la tabla debates lista
+[27-09-2026 07:39:59] [INFO] Tabla participantes lista
+[27-09-2026 07:39:59] [INFO] Tabla votos lista
+[27-09-2026 07:39:59] [INFO] Migración de la tabla votos lista
+[27-09-2026 07:39:59] [INFO] Tabla jurado lista
+[27-09-2026 07:39:59] [INFO] Tabla puntuaciones_jurado lista
+[27-09-2026 07:39:59] [INFO] Servidor iniciado en http://localhost:8080
+[27-09-2026 07:39:59] [INFO] Nueva conexión en la sala del debate 3
+[27-09-2026 07:40:29] [INFO] Conexión cerrada en la sala del debate 3
+[27-09-2026 07:41:05] [INFO] Debate creado: Debate serio
+[27-09-2026 07:41:11] [INFO] Participante asignado al debate 4
+[27-09-2026 07:41:14] [INFO] Participante asignado al debate 4
+[27-09-2026 07:41:19] [INFO] Jurado asignado al debate 4
+[27-09-2026 07:43:00] [INFO] Inicio de sesión exitoso: naturalcherry@gmail.com
+[27-09-2026 07:43:07] [INFO] Debate iniciado, ID: 4
+[27-09-2026 07:43:07] [INFO] Nueva conexión en la sala del debate 4
+[27-09-2026 07:43:07] [INFO] Nueva conexión en la sala del debate 4
+[27-09-2026 07:43:16] [INFO] Nueva conexión en la sala del debate 4
+[27-09-2026 07:43:16] [INFO] Nueva conexión en la sala del debate 4
+[27-09-2026 07:43:33] [INFO] Conexión cerrada en la sala del debate 4
+[27-09-2026 07:43:33] [INFO] Conexión cerrada en la sala del debate 4

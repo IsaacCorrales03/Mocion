@@ -37,6 +37,24 @@ host, definir antes de cargar `api.js`:
 navegador, no de esta app. Si entrás por una IP de red (`http://192.168.x.x:3000`), vas a
 poder mirar la transmisión pero no vas a poder transmitir tu propia cámara desde ahí.
 
+## Presencia: todos deben estar conectados para arrancar
+
+Antes de iniciar un debate, el backend exige que **todos** los participantes asignados
+(ambos equipos) y todo el jurado tengan la página del debate abierta en ese momento — no
+alcanza con estar asignado, hace falta estar realmente conectado. Esto se rastrea con un
+pequeño socket de presencia (`/debates/{id}/presencia?usuario_id=...`) que cada pestaña
+abre apenas carga `debate.html` y mantiene viva mientras la página sigue abierta; el panel
+de gestión consulta `GET /debates/{id}/conectados` cada pocos segundos y muestra un punto
+"● CONECTADO" / "○ SIN CONECTAR" junto a cada nombre.
+
+Si al pulsar "INICIAR DEBATE" falta gente (sea porque el equipo no está completo, porque
+alguien asignado no tiene la página abierta, o ambas cosas), el servidor responde con el
+detalle exacto y el frontend te deja forzar el inicio igual con una confirmación.
+
+**Limitación conocida:** la presencia es en memoria (se pierde si el backend se reinicia) y
+no distingue "tengo la pestaña abierta" de "estoy realmente prestando atención" — solo mide
+si el navegador tiene la conexión websocket viva.
+
 ## La lógica del debate (estado + fases)
 
 Un debate pasa por tres **estados**: `abierto` → `transmitiendo` → `finalizado`. Mientras

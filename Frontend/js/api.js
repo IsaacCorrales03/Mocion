@@ -54,5 +54,7 @@ const API = (() => {
 
     chatSocket: (id) => new WebSocket(`${WS_BASE}/debates/${id}/chat`),
     streamSocket: (id) => new WebSocket(`${WS_BASE}/debates/${id}/stream`),
+    presenciaSocket: (id, usuarioId) => new WebSocket(`${WS_BASE}/debates/${id}/presencia?usuario_id=${usuarioId}`),
+    conectados: (id) => peticion(`/debates/${id}/conectados`),
   };
 })();

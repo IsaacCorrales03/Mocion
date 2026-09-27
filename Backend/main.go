@@ -12,6 +12,7 @@ import (
 	"github.com/IsaacCorrales03/Mocion/backend/internal/logs"
 	"github.com/IsaacCorrales03/Mocion/backend/internal/middleware"
 	"github.com/IsaacCorrales03/Mocion/backend/internal/motor"
+	"github.com/IsaacCorrales03/Mocion/backend/internal/presencia"
 	"github.com/joho/godotenv"
 )
 
@@ -51,6 +52,10 @@ func main() {
 	// reutilizando el hub de streaming para avisar a todos los conectados de cada cambio de turno
 	motorDeFases := motor.Nuevo(db, hubStreaming)
 
+	// Registro de presencia: quién tiene la página del debate abierta en este momento, para
+	// exigir que todos los asignados estén realmente conectados antes de poder arrancar
+	registroPresencia := presencia.Nuevo()
+
 	http.HandleFunc("/", index)
 
 	// Autenticación
@@ -65,8 +70,12 @@ func main() {
 	http.HandleFunc("GET /debates/en-vivo", handlers.NuevoExplorarDebatesHandler(db))
 	http.HandleFunc("GET /debates/programados", handlers.NuevoDebatesProgramadosHandler(db))
 	http.HandleFunc("GET /debates/{id}", handlers.NuevoObtenerDebateHandler(db))
-	http.HandleFunc("POST /debates/{id}/iniciar", handlers.NuevoIniciarDebateHandler(db, motorDeFases))
+	http.HandleFunc("POST /debates/{id}/iniciar", handlers.NuevoIniciarDebateHandler(db, motorDeFases, registroPresencia))
 	http.HandleFunc("POST /debates/{id}/finalizar", handlers.NuevoFinalizarDebateHandler(db, motorDeFases))
+
+	// Presencia: quién tiene la página abierta ahora mismo
+	http.HandleFunc("/debates/{id}/presencia", handlers.NuevoPresenciaHandler(registroPresencia))
+	http.HandleFunc("GET /debates/{id}/conectados", handlers.NuevoConectadosHandler(registroPresencia))
 
 	// Participantes (equipos A/B)
 	http.HandleFunc("POST /debates/{id}/participantes", handlers.NuevoAsignarParticipanteHandler(db))

@@ -5,11 +5,14 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/IsaacCorrales03/Mocion/backend/database"
 	"github.com/IsaacCorrales03/Mocion/backend/internal/motor"
+	"github.com/IsaacCorrales03/Mocion/backend/internal/presencia"
 )
 
 // crearDebatePeticion representa el cuerpo JSON esperado para crear un debate
@@ -123,8 +126,9 @@ func NuevoDebatesProgramadosHandler(db *sql.DB) http.HandlerFunc {
 }
 
 // NuevoIniciarDebateHandler crea el handler que arranca la transmisión de un debate: valida que
-// los equipos estén completos (a menos que se fuerce explícitamente) y dispara el motor de fases.
-func NuevoIniciarDebateHandler(db *sql.DB, m *motor.Motor) http.HandlerFunc {
+// los equipos estén completos y que todos los asignados (participantes y jurado) estén realmente
+// conectados en este momento — a menos que se fuerce explícitamente — y dispara el motor de fases.
+func NuevoIniciarDebateHandler(db *sql.DB, m *motor.Motor, registro *presencia.Registro) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -157,6 +161,8 @@ func NuevoIniciarDebateHandler(db *sql.DB, m *motor.Motor) http.HandlerFunc {
 
 		if !peticion.Forzar {
 
+			problemas := make([]string, 0)
+
 			cantidadA, cantidadB, err := database.ContarPorEquipo(db, id)
 
 			if err != nil {
@@ -164,13 +170,50 @@ func NuevoIniciarDebateHandler(db *sql.DB, m *motor.Motor) http.HandlerFunc {
 				return
 			}
 
-			if cantidadA < debate.ParticipantesXEquipo || cantidadB < debate.ParticipantesXEquipo {
+			if cantidadA < debate.ParticipantesXEquipo {
+				problemas = append(problemas, fmt.Sprintf("faltan %d en el equipo A", debate.ParticipantesXEquipo-cantidadA))
+			}
+
+			if cantidadB < debate.ParticipantesXEquipo {
+				problemas = append(problemas, fmt.Sprintf("faltan %d en el equipo B", debate.ParticipantesXEquipo-cantidadB))
+			}
+
+			participantes, err := database.ListarParticipantes(db, id)
+
+			if err != nil {
+				responderError(w, http.StatusInternalServerError, "error interno al listar participantes")
+				return
+			}
+
+			jurado, err := database.ObtenerJurado(db, id)
+
+			if err != nil {
+				responderError(w, http.StatusInternalServerError, "error interno al obtener el jurado")
+				return
+			}
+
+			desconectados := make([]string, 0)
+
+			for _, p := range participantes {
+				if !registro.EstaConectado(id, p.UsuarioID) {
+					desconectados = append(desconectados, p.Nombre)
+				}
+			}
+
+			for _, j := range jurado {
+				if !registro.EstaConectado(id, j.UsuarioID) {
+					desconectados = append(desconectados, j.Nombre)
+				}
+			}
+
+			if len(desconectados) > 0 {
+				problemas = append(problemas, "no están conectados ahora mismo: "+strings.Join(desconectados, ", "))
+			}
+
+			if len(problemas) > 0 {
 				responderJSON(w, http.StatusConflict, map[string]interface{}{
-					"error":                "no están todos los miembros todavía",
+					"error":                 strings.Join(problemas, "; "),
 					"requiere_confirmacion": true,
-					"equipo_a":             cantidadA,
-					"equipo_b":             cantidadB,
-					"requerido_por_equipo": debate.ParticipantesXEquipo,
 				})
 				return
 			}
