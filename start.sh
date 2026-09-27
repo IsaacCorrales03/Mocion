@@ -1,27 +1,22 @@
+
 #!/bin/bash
-# start.sh — levanta Postgres (docker-compose.yml), el backend (Go) y el
-# frontend (`serve`) juntos.
-# Uso: ./start.sh   (desde la raíz del proyecto, junto a Backend/, Frontend/
-# y docker-compose.yml)
+# start-backend.sh — levanta Postgres (docker compose) + compila y arranca
+# el backend. Pensado para correr en tu propio servidor (no en un PaaS que
+# no te deje manejar Docker vos mismo).
+#
+# Variables de entorno que el backend necesita (poné un Backend/.env o
+# exportalas antes de correr esto):
+#   URL_BASE_DE_DATOS    -> postgres://Administrador:mocion2026@localhost:5432/mocion?sslmode=disable
+#   ORIGENES_PERMITIDOS  -> URL del frontend, cuando ya la tengas
+#   PORT                 -> opcional, 8080 si no la seteás
 
 set -e
 
-BACKEND_PID=""
-
-cleanup() {
-  echo ""
-  echo "Cerrando..."
-  if [ -n "$BACKEND_PID" ] && kill -0 "$BACKEND_PID" 2>/dev/null; then
-    kill "$BACKEND_PID"
-  fi
-  exit 0
-}
-trap cleanup INT TERM
+cd "$(dirname "$0")"
 
 echo "==> Levantando Postgres (docker compose)..."
 docker compose up -d
 
-# Detecta el nombre del servicio de Postgres dentro del compose
 SERVICIO_DB=$(docker compose config --services | grep -Ei 'postgres|psql|^db$' | head -n1)
 if [ -z "$SERVICIO_DB" ]; then
   SERVICIO_DB=$(docker compose config --services | head -n1)
@@ -33,16 +28,10 @@ until docker compose exec -T "$SERVICIO_DB" pg_isready -U Administrador -d mocio
 done
 echo "    Postgres listo."
 
-echo "==> Levantando backend (Go)..."
 cd Backend
-go run main.go &
-BACKEND_PID=$!
-cd ..
 
-sleep 1
+echo "==> Compilando backend..."
+go build -o mocion-backend main.go
 
-echo "==> Levantando frontend (npx serve)..."
-cd Frontend
-npx serve
-
-cleanup
+echo "==> Arrancando backend..."
+exec ./mocion-backend

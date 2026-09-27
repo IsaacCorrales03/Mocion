@@ -23,8 +23,10 @@ func main() {
 	err := godotenv.Load()
 
 	if err != nil {
-		logs.Critical("No se pudo cargar el archivo .env: " + err.Error())
-		return
+		// En Render (y otros PaaS) no hay archivo .env: las variables las
+		// inyecta la plataforma directamente. Por eso esto solo se avisa,
+		// nunca corta el arranque del servidor.
+		logs.Info("No se encontró archivo .env, se usan las variables de entorno del sistema")
 	}
 
 	URLDeLaBaseDeDatos := os.Getenv("URL_BASE_DE_DATOS")
@@ -95,9 +97,14 @@ func main() {
 	http.HandleFunc("/debates/{id}/chat", handlers.NuevoChatHandler(hubChat))
 	http.HandleFunc("/debates/{id}/stream", handlers.NuevoStreamingHandler(hubStreaming))
 
-	logs.Info("Servidor iniciado en http://localhost:8080")
+	puerto := os.Getenv("PORT")
+	if puerto == "" {
+		puerto = "8080" // fallback para correrlo en local
+	}
 
-	err = http.ListenAndServe(":8080", middleware.CORS(http.DefaultServeMux))
+	logs.Info("Servidor iniciado en el puerto " + puerto)
+
+	err = http.ListenAndServe(":"+puerto, middleware.CORS(http.DefaultServeMux))
 
 	if err != nil {
 		logs.Critical("El servidor se detuvo: " + err.Error())
