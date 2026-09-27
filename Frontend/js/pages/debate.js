@@ -353,9 +353,25 @@ function conectarStream() {
   streamWs = API.streamSocket(debateId);
 
   streamWs.onopen = () => {
-    // Si al conectarme ya hay alguien transmitiendo, pido que me incluya
-    if (debateActual.turno_usuario_id && !esEmisor) pedirTransmision();
+    if (esEmisor) {
+      // Seguía transmitiendo y se reconectó el canal de señalización (p. ej. por un corte
+      // de red o un timeout de inactividad del hosting): avisamos de nuevo para que quien
+      // ya estaba mirando pueda re-pedir su conexión si la necesita.
+      enviarSenal({ tipo: "aviso-transmitiendo" });
+    } else if (debateActual.turno_usuario_id) {
+      // Si al conectarme ya hay alguien transmitiendo, pido que me incluya
+      pedirTransmision();
+    }
   };
+
+  // IMPORTANTE: antes este socket no se reconectaba solo (a diferencia del chat y la
+  // presencia, que sí lo hacen). Cualquier corte — un timeout de inactividad del hosting,
+  // un parpadeo de red, lo que sea — dejaba la señalización muerta para siempre: nadie más
+  // podía pedir ni recibir video por el resto del debate, aunque el resto de la página
+  // siguiera funcionando con normalidad. Eso explica que "no exista transmisión en vivo"
+  // de forma intermitente y sin ningún error visible para quien mira.
+  streamWs.onclose = () => setTimeout(conectarStream, 2000);
+  streamWs.onerror = () => streamWs.close();
 
   streamWs.onmessage = async (ev) => {
     const data = JSON.parse(ev.data);
@@ -429,7 +445,17 @@ function nuevaConexion(idRemoto) {
     if (e.candidate) enviarSenal({ tipo: "candidato", candidato: e.candidate, para: idRemoto });
   };
   conexion.ontrack = (e) => {
-    if (!esEmisor) document.getElementById("videoRemoto").srcObject = e.streams[0];
+    if (!esEmisor) {
+      const video = document.getElementById("videoRemoto");
+      video.srcObject = e.streams[0];
+      // Los navegadores bloquean el autoplay con audio si todavía no hubo ninguna
+      // interacción del usuario en la página; sin este manejo, el video se queda
+      // congelado en negro sin avisar nada. Si el navegador lo bloquea, reintentamos
+      // apenas el usuario haga clic en cualquier parte de la página.
+      video.play().catch(() => {
+        document.addEventListener("click", () => video.play().catch(() => {}), { once: true });
+      });
+    }
   };
   conexion.oniceconnectionstatechange = () => {
     console.log(`[stream] ICE con ${idRemoto}:`, conexion.iceConnectionState);

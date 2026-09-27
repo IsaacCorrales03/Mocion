@@ -11,6 +11,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"sync"
 )
 
 // llaveMagica es la constante definida por el estándar WebSocket (RFC 6455) para calcular Sec-WebSocket-Accept
@@ -18,8 +19,9 @@ const llaveMagica = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
 // Conn representa una conexión WebSocket ya establecida
 type Conn struct {
-	rwc net.Conn
-	br  *bufio.Reader
+	rwc         net.Conn
+	br          *bufio.Reader
+	muEscritura sync.Mutex
 }
 
 // ErrConexionCerrada se retorna cuando el cliente cerró la conexión
@@ -73,26 +75,56 @@ func calcularAceptacion(llaveCliente string) string {
 	return base64.StdEncoding.EncodeToString(suma[:])
 }
 
-// ReadMessage lee un mensaje de texto completo enviado por el cliente (los frames del cliente llegan enmascarados)
+// ReadMessage lee mensajes de texto del cliente, ignorando de forma transparente los frames de
+// control (ping/pong) que no son parte de la conversación: si el cliente manda un ping, se le
+// responde con un pong automáticamente y se sigue esperando el próximo mensaje real. Antes estos
+// frames de control se devolvían tal cual como si fueran un mensaje de texto, y terminaban
+// reenviándose al resto de la sala como si fueran señalización WebRTC válida.
 func (c *Conn) ReadMessage() (string, error) {
+
+	for {
+
+		opcode, datos, err := c.leerFrame()
+
+		if err != nil {
+			return "", err
+		}
+
+		switch opcode {
+
+		case 0x8: // frame de cierre enviado por el cliente
+			return "", ErrConexionCerrada
+
+		case 0x9: // ping: se responde con un pong y se sigue esperando el próximo mensaje
+			if err := c.writeFrame(0xA, datos); err != nil {
+				return "", err
+			}
+			continue
+
+		case 0xA: // pong: no requiere respuesta, se ignora
+			continue
+
+		default: // 0x1 (texto) o 0x2 (binario): es un mensaje real
+			return string(datos), nil
+		}
+	}
+}
+
+// leerFrame lee un único frame WebSocket del cliente y devuelve su opcode y payload sin interpretar
+func (c *Conn) leerFrame() (byte, []byte, error) {
 
 	primerByte, err := c.br.ReadByte()
 
 	if err != nil {
-		return "", err
+		return 0, nil, err
 	}
 
 	opcode := primerByte & 0x0F
 
-	// 0x8 = frame de cierre enviado por el cliente
-	if opcode == 0x8 {
-		return "", ErrConexionCerrada
-	}
-
 	segundoByte, err := c.br.ReadByte()
 
 	if err != nil {
-		return "", err
+		return 0, nil, err
 	}
 
 	enmascarado := segundoByte&0x80 != 0
@@ -105,7 +137,7 @@ func (c *Conn) ReadMessage() (string, error) {
 		err = binary.Read(c.br, binary.BigEndian, &extendida)
 
 		if err != nil {
-			return "", err
+			return 0, nil, err
 		}
 
 		longitud = int64(extendida)
@@ -117,7 +149,7 @@ func (c *Conn) ReadMessage() (string, error) {
 		err = binary.Read(c.br, binary.BigEndian, &extendida)
 
 		if err != nil {
-			return "", err
+			return 0, nil, err
 		}
 
 		longitud = int64(extendida)
@@ -130,7 +162,7 @@ func (c *Conn) ReadMessage() (string, error) {
 		_, err = io.ReadFull(c.br, mascara[:])
 
 		if err != nil {
-			return "", err
+			return 0, nil, err
 		}
 	}
 
@@ -139,7 +171,7 @@ func (c *Conn) ReadMessage() (string, error) {
 	_, err = io.ReadFull(c.br, datos)
 
 	if err != nil {
-		return "", err
+		return 0, nil, err
 	}
 
 	if enmascarado {
@@ -148,32 +180,43 @@ func (c *Conn) ReadMessage() (string, error) {
 		}
 	}
 
-	return string(datos), nil
+	return opcode, datos, nil
 }
 
 // WriteMessage envía un mensaje de texto al cliente (los frames del servidor van sin máscara)
 func (c *Conn) WriteMessage(mensaje string) error {
+	return c.writeFrame(0x1, []byte(mensaje))
+}
 
-	datos := []byte(mensaje)
+// writeFrame arma y envía un frame WebSocket con el opcode indicado. Protegido con un mutex porque
+// varias goroutines pueden querer escribirle a la misma conexión al mismo tiempo (p. ej. dos
+// personas hablando en el chat a la vez, o varios candidatos ICE llegando juntos durante la
+// señalización de streaming): sin este candado, dos escrituras concurrentes podían intercalar sus
+// bytes y corromper el frame, lo que el navegador simplemente descarta o interpreta como un cierre
+// de la conexión — la causa más probable de que la transmisión se cortara sin ningún error visible.
+func (c *Conn) writeFrame(opcode byte, datos []byte) error {
+
 	longitud := len(datos)
 
 	var encabezado []byte
 
-	// 0x81 = FIN + opcode de texto
 	switch {
 
 	case longitud <= 125:
-		encabezado = []byte{0x81, byte(longitud)}
+		encabezado = []byte{0x80 | opcode, byte(longitud)}
 
 	case longitud <= 65535:
-		encabezado = []byte{0x81, 126, byte(longitud >> 8), byte(longitud)}
+		encabezado = []byte{0x80 | opcode, 126, byte(longitud >> 8), byte(longitud)}
 
 	default:
 		encabezado = make([]byte, 10)
-		encabezado[0] = 0x81
+		encabezado[0] = 0x80 | opcode
 		encabezado[1] = 127
 		binary.BigEndian.PutUint64(encabezado[2:], uint64(longitud))
 	}
+
+	c.muEscritura.Lock()
+	defer c.muEscritura.Unlock()
 
 	_, err := c.rwc.Write(append(encabezado, datos...))
 
