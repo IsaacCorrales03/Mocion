@@ -1,5 +1,5 @@
 // Cliente de la API de Moción. Ajusta BASE_URL al host donde corre el backend Go.
-window.MOCION_API_URL = "https://mocion.onrender.com/";
+window.MOCION_API_URL = "https://mocion.onrender.com";
 const API = (() => {
   const BASE_URL = window.MOCION_API_URL || `${location.protocol}//${location.hostname}:8080`;
   const WS_BASE = BASE_URL.replace(/^http/, "ws");
